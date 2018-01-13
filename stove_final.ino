@@ -1,5 +1,5 @@
 #include <Servo.h>
-
+#include <Servo.h>
 #define NOTE_B0  31
 #define NOTE_C1  33
 #define NOTE_CS1 35
@@ -90,7 +90,6 @@
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
 
-#define melodyPin 3
 //Mario main theme melody
 int melody[] = {
   NOTE_E7, NOTE_E7, 0, NOTE_E7,
@@ -146,14 +145,16 @@ int tempo[] = {
   12, 12, 12, 12,
 };
 
-const int ulsonicPin = 7;
-const int buzzerPin = 3;
-const int ledPin = 4; 
-const int buttonPin = 8; 
+const int ulsonicPin = 4;
+const int melodyPin = 8; 
+const int buttonPin = 7; 
+const int redLEDPin = 5;
+const int greenLEDPin = 6;
+const int blueLEDPin = 3; 
 int state = 0; 
 
 //Servo myservo;
-//int pos = 0;
+//åååint pos = 0;
 
 //variables needed to store values
 long pulse, inches, cm;
@@ -163,11 +164,13 @@ void setup()
 
 {
   //This opens up a serial connection to shoot the results back to the PC console
-  Serial.begin(2000000);
-  pinMode(buzzerPin, OUTPUT);//buzzer
+  Serial.begin(9600);
+  pinMode(melodyPin, OUTPUT);//buzzer
   pinMode(ulsonicPin, INPUT);
   pinMode(buttonPin, INPUT); 
-  pinMode(ledPin, OUTPUT); 
+  pinMode(redLEDPin, OUTPUT);
+  pinMode(greenLEDPin, OUTPUT);
+  pinMode(blueLEDPin, OUTPUT); 
 
   //myservo.attach(9);
 
@@ -191,34 +194,77 @@ void loop()
 
     if (state == 0)
   {
-     digitalWrite(ledPin, LOW); 
+     changeColors(0); 
      if (inches <= 7)
+     {
+        state = 2; 
+     }
+     else if (inches <= 12)
      {
         state = 1;  
      }
+     //myservo.write(0);
   }
   else if (state == 1)
-  {
-    digitalWrite(ledPin, HIGH); 
-//    for (pos = 0; pos <= 180; pos += 1) { 
-//    // in steps of 1 degree
-//    myservo.write(pos);              
-//    delay(15);                       
-//  }
-//  for (pos = 180; pos >= 0; pos -= 1) { 
-//    myservo.write(pos);              
-//    delay(15);                       
-//  }
-    alarm(); 
-    //if (digitalRead(buttonPin) == HIGH)
-    //{
-    //  state = 0; 
-   // }
+  { 
+    changeColors(1); 
+    if (inches <= 7)
+    {
+      state = 2; 
+    }
+    else if (inches > 7 && inches <= 12)
+    {
+      state = 1; 
+    }
+    else
+    {
+      state = 0; 
+    }
+    
   }
+  else if (state == 2)
+  {
+    changeColors(2); 
+    alarm(); 
+    if (digitalRead(buttonPin) == HIGH)
+    {
+      state = 0; 
+    }
+    //myservo.write(180);
+  }
+  //delay(50);
+  ///Serial.print(state); 
 
 }
 
 
+void changeColors(int state)
+{
+  if (state == 0) 
+  {
+     analogWrite(redLEDPin, 255);
+     analogWrite(greenLEDPin, 0); 
+     analogWrite(blueLEDPin, 0);     
+  }
+  else if (state == 1)
+  {
+    analogWrite(redLEDPin, 100);
+    analogWrite(greenLEDPin, 230);
+    analogWrite(blueLEDPin, 50);
+    delay(50);
+    analogWrite(redLEDPin,  40);
+    analogWrite(greenLEDPin, 40);
+    analogWrite(blueLEDPin, 40);
+    delay(50);
+         
+  }
+  else if (state == 2)
+  {
+    analogWrite(redLEDPin, 0);
+    analogWrite(greenLEDPin, 255); 
+    analogWrite(blueLEDPin, 0);     
+  }
+}
 
 void alarm()
 {
@@ -244,7 +290,7 @@ void alarm()
 }
 
 void buzz(int targetPin, long frequency, long length) {
-  digitalWrite(13, HIGH);
+  digitalWrite(melodyPin, HIGH);
   long delayValue = 1000000 / frequency / 2; // calculate the delay value between transitions
   //// 1 second's worth of microseconds, divided by the frequency, then split in half since
   //// there are two phases to each cycle
@@ -257,7 +303,9 @@ void buzz(int targetPin, long frequency, long length) {
     digitalWrite(targetPin, LOW); // write the buzzer pin low to pull back the diaphram
     delayMicroseconds(delayValue); // wait again or the calculated delay value
   }
-  digitalWrite(13, LOW);
+  digitalWrite(melodyPin, LOW);
 
 }
+
+
 
