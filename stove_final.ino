@@ -147,14 +147,14 @@ int tempo[] = {
 
 const int ulsonicPin = 4;
 const int melodyPin = 8; 
-const int buttonPin = 7; 
+//const int buttonPin = 9; 
 const int redLEDPin = 5;
 const int greenLEDPin = 6;
-const int blueLEDPin = 3; 
+const int blueLEDPin = 7; 
 int state = 0; 
 
 //Servo myservo;
-//åååint pos = 0;
+//int pos = 0;
 
 //variables needed to store values
 long pulse, inches, cm;
@@ -167,7 +167,7 @@ void setup()
   Serial.begin(9600);
   pinMode(melodyPin, OUTPUT);//buzzer
   pinMode(ulsonicPin, INPUT);
-  pinMode(buttonPin, INPUT); 
+  //pinMode(buttonPin, INPUT); 
   pinMode(redLEDPin, OUTPUT);
   pinMode(greenLEDPin, OUTPUT);
   pinMode(blueLEDPin, OUTPUT); 
@@ -226,23 +226,22 @@ void loop()
   {
     changeColors(2); 
     alarm(); 
-    if (digitalRead(buttonPin) == HIGH)
-    {
-      state = 0; 
-    }
+    //if (digitalRead(buttonPin) == LOW)
+   // {
+   //   state = 0; 
+ //   }
+    
     //myservo.write(180);
   }
   //delay(50);
   ///Serial.print(state); 
 
 }
-
-
 void changeColors(int state)
 {
   if (state == 0) 
   {
-     analogWrite(redLEDPin, 255);
+     analogWrite(redLEDPin, 0);
      analogWrite(greenLEDPin, 0); 
      analogWrite(blueLEDPin, 0);     
   }
@@ -252,9 +251,9 @@ void changeColors(int state)
     analogWrite(greenLEDPin, 230);
     analogWrite(blueLEDPin, 50);
     delay(50);
-    analogWrite(redLEDPin,  40);
-    analogWrite(greenLEDPin, 40);
-    analogWrite(blueLEDPin, 40);
+    analogWrite(redLEDPin,  250);
+    analogWrite(greenLEDPin, 255);
+    analogWrite(blueLEDPin, 51);
     delay(50);
          
   }
@@ -262,7 +261,7 @@ void changeColors(int state)
   {
     analogWrite(redLEDPin, 0);
     analogWrite(greenLEDPin, 255); 
-    analogWrite(blueLEDPin, 0);     
+    analogWrite(blueLEDPin, 0);
   }
 }
 
@@ -306,6 +305,5 @@ void buzz(int targetPin, long frequency, long length) {
   digitalWrite(melodyPin, LOW);
 
 }
-
-
+  
 
