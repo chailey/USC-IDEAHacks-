@@ -147,11 +147,13 @@ int tempo[] = {
 
 const int ulsonicPin = 4;
 const int melodyPin = 8; 
-//const int buttonPin = 9; 
+const int buttonPin = 2; 
+const int cameraPin = 3; 
 const int redLEDPin = 5;
 const int greenLEDPin = 6;
 const int blueLEDPin = 7; 
-int state = 0; 
+const int notifyLEDPin = 10; 
+volatile int state = 0; 
 
 //Servo myservo;
 //int pos = 0;
@@ -159,6 +161,7 @@ int state = 0;
 //variables needed to store values
 long pulse, inches, cm;
 
+void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void setup()
 
@@ -167,13 +170,15 @@ void setup()
   Serial.begin(9600);
   pinMode(melodyPin, OUTPUT);//buzzer
   pinMode(ulsonicPin, INPUT);
-  //pinMode(buttonPin, INPUT); 
+  pinMode(buttonPin, INPUT); 
+  pinMode(cameraPin, INPUT); 
+  pinMode(notifyLEDPin, OUTPUT);
   pinMode(redLEDPin, OUTPUT);
   pinMode(greenLEDPin, OUTPUT);
   pinMode(blueLEDPin, OUTPUT); 
+  attachInterrupt(digitalPinToInterrupt(buttonPin), resetFunc, HIGH);
 
   //myservo.attach(9);
-
 }
 
 
@@ -187,13 +192,19 @@ void loop()
   //147uS per inch
   inches = pulse / 147;
 
+  Serial.print(digitalRead(buttonPin)); 
 
-  Serial.print(inches);
-  Serial.print("in, ");
-  Serial.println();
+  //Serial.print(inches);
+ // Serial.print("in, ");
+  //Serial.println();
 
     if (state == 0)
   {
+    if(!digitalRead(cameraPin))
+      flicker();
+    else {
+      digitalWrite(notifyLEDPin, LOW); 
+    }
      changeColors(0); 
      if (inches <= 7)
      {
@@ -206,7 +217,12 @@ void loop()
      //myservo.write(0);
   }
   else if (state == 1)
-  { 
+  {
+    if(!digitalRead(cameraPin))
+      flicker();
+    else {
+      digitalWrite(notifyLEDPin, LOW); 
+    } 
     changeColors(1); 
     if (inches <= 7)
     {
@@ -224,12 +240,14 @@ void loop()
   }
   else if (state == 2)
   {
+    digitalWrite(notifyLEDPin, LOW); 
     changeColors(2); 
     alarm(); 
+    Serial.println(digitalRead(buttonPin)); 
     //if (digitalRead(buttonPin) == LOW)
-   // {
-   //   state = 0; 
- //   }
+    //{
+     
+    //}
     
     //myservo.write(180);
   }
@@ -263,6 +281,14 @@ void changeColors(int state)
     analogWrite(greenLEDPin, 255); 
     analogWrite(blueLEDPin, 0);
   }
+}
+
+void flicker()
+{
+    digitalWrite(notifyLEDPin, HIGH); 
+    delay(10);
+    digitalWrite(notifyLEDPin, LOW);
+    delay(10);     
 }
 
 void alarm()
